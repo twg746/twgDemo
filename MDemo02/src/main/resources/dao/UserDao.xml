@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.twg.dao.UserDao">
+    <select id="getCount" resultType="int">
+        select  count(*) from  USER
+    </select>
+
+    <select id="selectUserById" parameterType="int" resultType="User">
+        SELECT  * FROM  user where id=#{value}
+    </select>
+
+
+    <select id="selectUserByName" parameterType="String" resultType="User">
+        SELECT  * from USER  WHERE name like #{value}
+    </select>
+
+    <select id="selectCount" parameterType="String" resultType="int">
+        SELECT count(*) from ${value}
+    </select>
+
+
+    <insert id="addUser" parameterType="user">
+        insert into user(name,password,age) values(#{name},#{password},#{age})
+    </insert>
+
+
+    <insert id="addUserGetID" parameterType="user">
+        <selectKey keyProperty="id" order="AFTER" resultType="int">
+            SELECT  LAST_INSERT_ID()
+        </selectKey>
+        insert into user(name,password,age) values(#{name},#{password},#{age})
+    </insert>
+
+    <insert id="addUserGetUuid" parameterType="user">
+        <selectKey keyProperty="uuid" order="BEFORE" resultType="String">
+            select uuid()
+        </selectKey>
+        insert into user(name,password,age,uuid) values(#{name},#{password},#{age},#{uuid})
+    </insert>
+
+    <delete id="deleteUser" parameterType="int">
+        delete from user where id=#{id}
+    </delete>
+
+    <update id="updateUser" parameterType="user">
+        update user set name=#{name},password=#{password},age=#{age} where id=#{id}
+    </update>
+
+    <select id="findUserByQueryVo" parameterType="cn.twg.pojo.QueryVo" resultType="user">
+        select * from user where name like #{user.name}and age>#{user.age}
+    </select>
+
+    <select id="findUserByMap" resultMap="UserMap">
+        select * from user
+    </select>
+    <resultMap id="UserMap" type="cn.twg.pojo.NewUser">
+        <id column="id" property="id_"></id>
+        <result column="name" property="name_"></result>
+        <result column="password" property="password_"></result>
+        <result column="age" property="age_"></result>
+    </resultMap>
+
+
+    <select id="findUserIf" parameterType="user" resultType="user">
+        select * from user
+        <where>
+      <include refid="query_where"></include>
+        </where>
+    </select>
+    
+    
+    <sql id="query_where">
+        <if test="id!=null and id!=''">
+            and id=#{id}
+        </if>
+        <if test="name!=null and name!=''">
+            and name like #{name}
+        </if>
+    </sql>
+</mapper>
